@@ -1,0 +1,16 @@
+# Ignorera exekverbara filer
+main
+
+# Ignorera objektfiler och kompilatorns mellanprodukter
+*.o
+*.out
+
+# Ignorera temporära filer och kataloger
+*.log
+*.tmp
+*.swp
+*.bak
+*.dSYM/
+
+# Ignorera byggkataloger
+build/
