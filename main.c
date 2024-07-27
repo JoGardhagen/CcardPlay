@@ -18,8 +18,21 @@ int main(){
         drawCardToHand(&hand);
     }
 
+    printf("Your hand:\n");
     printHand(&hand);
-    
+
+
+    Suit currentSuit = HEARTS;
+
+    int indexToPlace;
+    printf("Enter the number of the card to place (1-%d): ",hand.size);
+    scanf("%d",&indexToPlace);
+    indexToPlace--;
+
+    placeCard(&hand,indexToPlace,currentSuit);
+
+    printf("Updated hand:\n");
+    printRemainingCards(&hand);
 
     return 0;
 }
