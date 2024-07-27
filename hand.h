@@ -1,20 +1,22 @@
-
 #ifndef HAND_H
 #define HAND_H
 
 #include "deck.h"
 
-typedef struct{
-    Card cards[DECK_SIZE];
+#define NO_SUIT 4  // Om du använder enum Suit som har 0-3
+#define NO_RANK 13 // Om du använder enum Rank som har 0-12
+
+#define MAX_HAND_SIZE 52
+
+typedef struct {
+    Card cards[MAX_HAND_SIZE];
     int size;
-}Hand;
+} Hand;
 
 void initializeHand(Hand *hand);
 void drawCardToHand(Hand *hand);
 void printHand(const Hand *hand);
-void placeCard(Hand *hand, int index,Suit currentSuit);
+int placeCard(Hand *hand, int index, Suit *currentSuit, int isPlayer);
 void printRemainingCards(const Hand *hand);
 
-
-#endif
-
+#endif // HAND_H

@@ -1,58 +1,73 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "hand.h"
 
-void initializeHand(Hand *hand){
+void initializeHand(Hand *hand) {
     hand->size = 0;
 }
 
-void drawCardToHand(Hand *hand){
-    if(deckSize == 0){
-        printf("No Cards left in the deck to draw.\n");
+void drawCardToHand(Hand *hand) {
+    if (deckSize == 0) {
+        printf("No cards left in the deck to draw.\n");
         return;
     }
-    hand->cards[hand->size]= drawCard();
+    hand->cards[hand->size] = drawCard();
     hand->size++;
 }
 
-void printHand(const Hand *hand){
-    printf("Hand contains %d cards:\n",hand->size);
-    for(int i = 0;i<hand->size;i++){
-        //printf("%d of %d\n",hand->cards[i].rank,hand->cards[i].suit);
-        //printf("%s of %s\n",hand->cards[i].rank,hand->cards[i].suit);
-        printf("%d: %s of %s\n",i+1,rankToString(hand->cards[i].rank),suitToString(hand->cards[i].suit));
+void printHand(const Hand *hand) {
+    printf("Hand contains %d cards:\n", hand->size);
+    for (int i = 0; i < hand->size; i++) {
+        printf("%d: %s of %s\n", i + 1, rankToString(hand->cards[i].rank), suitToString(hand->cards[i].suit));
     }
 }
 
-void placeCard(Hand *hand,int index,Suit currentSuit){
-    if(index <0 || index >= hand->size){
+int placeCard(Hand *hand, int index, Suit *currentSuit,int isPlayer) {
+    if (index < 0 || index >= hand->size) {
         printf("Invalid card index.\n");
-        return;
+        return 0;
     }
 
     Card cardToPlace = hand->cards[index];
-
-    if(cardToPlace.suit != currentSuit &&cardToPlace.rank !=ACE){
-        printf("You can only place a card of same suit or an ACE.\n");
-        return;
+    
+    // Rule 1: Check if the card can be placed (must be the same suit or the same rank)
+    if (cardToPlace.suit != *currentSuit && cardToPlace.rank != ACE && cardToPlace.rank != EIGHT) {
+        printf("You can only place a card of the same suit, an Ace, or an Eight.\n");
+        return 0;
     }
 
-    //printf("Placing %d of %d\n",cardToPlace.rank, cardToPlace.suit);
     // Print out the card being placed
     printf("Placing %s of %s\n", rankToString(cardToPlace.rank), suitToString(cardToPlace.suit));
     
+    // Update current suit if an Eight is placed
+    if (cardToPlace.rank == EIGHT) {
+        if(isPlayer){
+        int newSuit;
+        printf("Choose a new suit (0: Hearts, 1: Diamonds, 2: Clubs, 3: Spades): ");
+        scanf("%d", &newSuit);
+        *currentSuit = (Suit)newSuit;
+        printf("New suit is %s\n", suitToString(*currentSuit));
+        }else{
+            *currentSuit = (Suit)(rand() % 4); // AI chooses a random suit
+            printf("AI chooses new suit: %s\n", suitToString(*currentSuit));
+        }
 
-    //printf("Placing %s of %s\n",hand->cards[index].rank, hand->cards[index].suit);
-    
-    hand->cards[index] = hand->cards[hand->size -1];
+    }else if(cardToPlace.rank == ACE || cardToPlace.rank == (*currentSuit != NO_SUIT ? cardToPlace.rank :NO_RANK)) {
+        *currentSuit = cardToPlace.suit;
+    }else {
+        *currentSuit = cardToPlace.suit;
+    }
 
+    // Remove the card by moving the last card to the position being removed
+    hand->cards[index] = hand->cards[hand->size - 1];
     hand->size--;
+
+    return 1;
 }
 
-void printRemainingCards(const Hand *hand){
+void printRemainingCards(const Hand *hand) {
     printf("Remaining cards in hand:\n");
-    for(int i = 0;i < hand->size;i++){
-        //printf("%d: %d of %d\n",i + 1,hand->cards[i].rank, hand->cards[i].suit);
-        //printf("%d: %s of %s\n",i + 1,hand->cards[i].rank, hand->cards[i].suit);
+    for (int i = 0; i < hand->size; i++) {
         printf("%d: %s of %s\n", i + 1, rankToString(hand->cards[i].rank), suitToString(hand->cards[i].suit));
     }
 }
