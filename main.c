@@ -1,82 +1,98 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "deck.h"
-#include "hand.h"
-#include "ai.h"
 
-void printCurrentSuit(Suit currentSuit) {
-    printf("Current suit: %s\n", suitToString(currentSuit));
+// Funktioner för att hantera kort
+void printCard(Card card) {
+    printf("%s of %s", rankToString(card.rank), suitToString(card.suit));
 }
 
-int main() {
-    srand(time(NULL)); // Seed för att generera slumpmässiga tal
-
-    initializeDeck();
-    shuffleDeck();
-
-    Hand playerHand;
-    initializeHand(&playerHand);
-
-    Hand aiHand;
-    initializeHand(&aiHand);
-
-    // Dra 5 kort till båda spelarna som exempel
-    for (int i = 0; i < 5; i++) {
-        drawCardToHand(&playerHand);
-        drawCardToHand(&aiHand);
+void printHand(Hand *hand) {
+    for (int i = 0; i < hand->size; i++) {
+        printf("Card %d: ", i + 1);
+        printCard(hand->cards[i]);
+        printf("\n");
     }
+}
 
-    Suit currentSuit = HEARTS; // Startfärg
-    int playerIndexToPlace;
-    
-    while (playerHand.size > 0 && aiHand.size > 0) {
+int isPlayable(Card card, Card topCard) {
+    return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT;
+}
 
-        printCurrentSuit(currentSuit);
-        // Spela för spelaren
-        printf("\nYour hand:\n");
-        printHand(&playerHand);
-        printf("Enter the number of the card to place (1-%d): ", playerHand.size);
-        scanf("%d", &playerIndexToPlace);
-        playerIndexToPlace--; // Omvandla till 0-baserat index
-
-        int cardPlaced = placeCard(&playerHand, playerIndexToPlace, &currentSuit,1);
-
-        // Om spelaren inte kan lägga något kort, dra tre kort
-        if (!cardPlaced) {
-            printf("You can't place any valid card. Drawing three cards.\n");
-            for (int i = 0; i < 3; i++) {
-                drawCardToHand(&playerHand);
-            }
+void drawMultipleCardsToHand(Hand *hand, int count) {
+    for (int i = 0; i < count; i++) {
+        if (deckSize > 0) {
+            drawCardToHand(hand);
         } else {
-            // Om spelaren har lagt ett ess, dra ett kort
-            if (playerHand.cards[playerHand.size - 1].rank == ACE) {
-                drawCardToHand(&playerHand);
-            }
-        }
-
-        // AI spelar
-        printf("\nAI's turn:\n");
-        aiPlay(&aiHand, &currentSuit);
-
-        // Om AI lägger ett ess, dra ett kort
-        if (aiHand.cards[aiHand.size - 1].rank == ACE) {
-            drawCardToHand(&playerHand);
-        }
-
-        // Avsluta om någon av spelarna inte har några kort kvar
-        if (playerHand.size == 0 || aiHand.size == 0) {
-            printf("Game over!\n");
+            printf("No more cards left in the deck to draw.\n");
             break;
         }
     }
+}
 
-    // Skriv ut slutresultat
-    printf("\nFinal hands:\n");
-    printf("Your final hand:\n");
-    printHand(&playerHand);
-    printf("AI's final hand:\n");
-    printHand(&aiHand);
+int main() {
+    // Initiera och blanda kortleken
+    initializeDeck();
+    shuffleDeck();
 
+    // Dra ett kort från kortleken som det första kortet på bordet
+    Card topCard = drawCard();
+    printf("Initial top card: ");
+    printCard(topCard);
+    printf("\n");
+
+    // Skapa och initiera spelarhanden
+    Hand hand;
+    initializeHand(&hand, INITIAL_HAND_SIZE);
+
+    // Dra initiala kort till spelarhanden
+    for (int i = 0; i < INITIAL_HAND_SIZE; i++) {
+        drawCardToHand(&hand);
+    }
+
+    while (1) {
+        printf("\nYour hand:\n");
+        printHand(&hand);
+
+        // Visa kortet som är på spel
+        printf("\nTop card: ");
+        printCard(topCard);
+        printf("\n");
+
+        printf("\nChoose a card to play (1-%d), or press 0 to draw 3 cards: ", hand.size);
+        int choice;
+        scanf("%d", &choice);
+
+        if (choice == 0) {
+            printf("Drawing 3 new cards...\n");
+            drawMultipleCardsToHand(&hand, 3);
+            continue; // Gå tillbaka till början av loopen
+        }
+
+        if (choice < 1 || choice > hand.size) {
+            printf("Invalid choice. Try again.\n");
+            continue;
+        }
+
+        Card selectedCard = hand.cards[choice - 1];
+
+        if (isPlayable(selectedCard, topCard) || selectedCard.rank == EIGHT) {
+            // Spela kortet
+            topCard = selectedCard;
+            printf("You played: ");
+            printCard(selectedCard);
+            printf("\n");
+
+            // Ta bort det spelade kortet från handen
+            for (int i = choice - 1; i < hand.size - 1; i++) {
+                hand.cards[i] = hand.cards[i + 1];
+            }
+            hand.size--;
+        } else {
+            printf("Card is not playable.\n");
+        }
+    }
+
+    freeHand(&hand);
     return 0;
 }
