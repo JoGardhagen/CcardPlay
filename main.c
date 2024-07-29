@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "deck.h"
+#include "card.h"
 
 // Funktioner för att hantera kort
 void printHand(CardPile *hand) {

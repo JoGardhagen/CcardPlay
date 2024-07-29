@@ -2,14 +2,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include "deck.h"
+#include "card.h"
 
 CardPile deck;
 Suit currentSuit = NUM_SUITS; // Ingen färg vald initialt
-
-const char *rankNames[] = {"2", "3", "4", "5", "6", "7", "9", "10", "Jack", "Queen", "King", "Ace", "8"};
-//const char *suitNames[] = {"Hearts", "Diamonds", "Clubs", "Spades"};
-const char *suitNames[] = {"♥", "♦", "♣", "♠"};
-
 
 int isPlayable(Card card, Card topCard) {
     return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT || card.suit == currentSuit;
@@ -67,9 +63,7 @@ void addCardToPile(CardPile *pile, Card card) {
     }
     pile->cards[pile->size++] = card;
 }
-void printCard(Card card) {
-    printf("%s of %s", rankToString(card.rank), suitToString(card.suit));
-}
+
 
 void printCardPile(CardPile *pile) {
     printf("Discard Pile:\n");
@@ -116,10 +110,4 @@ void chooseNewSuit() {
     }
 }
 
-const char* rankToString(Rank rank) {
-    return rankNames[rank];
-}
 
-const char* suitToString(Suit suit) {
-    return suitNames[suit];
-}
