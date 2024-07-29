@@ -35,5 +35,6 @@ const char* rankToString(Rank rank);
 const char* suitToString(Suit suit);
 
 void printCard(Card card); 
+void printCardIllustration(Card card);
 
 #endif
