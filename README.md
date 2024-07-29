@@ -3,7 +3,7 @@
 <p>This is a simple Card game Vänd-8 Written in c 
 <p>
 <p>
-Förklaringar till Pseudokoden
+
 Initialization:
 Deck: Skapa och blanda kortleken.
 Hand: Initiera spelarens hand.
