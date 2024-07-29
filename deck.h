@@ -1,6 +1,8 @@
 #ifndef DECK_H
 #define DECK_H
 
+#include <stdlib.h>
+
 typedef enum {
     HEARTS,
     DIAMONDS,
@@ -60,5 +62,7 @@ typedef struct {
 void initializeCardPile(CardPile *pile, int initialCapacity);
 void addCardToPile(CardPile *pile, Card card);
 void freeCardPile(CardPile *pile);
+void printCardPile(CardPile *pile);
+void printCard(Card card); 
 
 #endif

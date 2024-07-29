@@ -82,3 +82,14 @@ void addCardToPile(CardPile *pile, Card card) {
 void freeCardPile(CardPile *pile) {
     free(pile->cards);
 }
+
+void printCardPile(CardPile *pile) {
+    printf("Discard Pile:\n");
+    for (int i = 0; i < pile->size; i++) {
+        printCard(pile->cards[i]);
+        printf("\n");
+    }
+}
+void printCard(Card card) {
+    printf("%s of %s", rankToString(card.rank), suitToString(card.suit));
+}

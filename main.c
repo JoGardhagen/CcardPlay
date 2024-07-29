@@ -3,9 +3,9 @@
 #include "deck.h"
 
 // Funktioner för att hantera kort
-void printCard(Card card) {
+/*void printCard(Card card) {
     printf("%s of %s", rankToString(card.rank), suitToString(card.suit));
-}
+}*/
 
 void printHand(CardPile *hand) {
     for (int i = 0; i < hand->size; i++) {
@@ -99,6 +99,9 @@ int main() {
         } else {
             printf("Card is not playable.\n");
         }
+
+        // Skriv ut slänghögen
+        printCardPile(&discardPile);
     }
 
     // Frigör minne
