@@ -7,7 +7,7 @@ void printCard(Card card) {
     printf("%s of %s", rankToString(card.rank), suitToString(card.suit));
 }
 
-void printHand(Hand *hand) {
+void printHand(CardPile *hand) {
     for (int i = 0; i < hand->size; i++) {
         printf("Card %d: ", i + 1);
         printCard(hand->cards[i]);
@@ -19,10 +19,10 @@ int isPlayable(Card card, Card topCard) {
     return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT;
 }
 
-void drawMultipleCardsToHand(Hand *hand, int count) {
+void drawMultipleCardsToHand(CardPile *hand, int count) {
     for (int i = 0; i < count; i++) {
         if (deckSize > 0) {
-            drawCardToHand(hand);
+            addCardToPile(hand, drawCard());
         } else {
             printf("No more cards left in the deck to draw.\n");
             break;
@@ -42,16 +42,20 @@ int main() {
     printf("\n");
 
     // Skapa och initiera spelarhanden
-    Hand hand;
-    initializeHand(&hand, INITIAL_HAND_SIZE);
+    CardPile hand;
+    initializeCardPile(&hand, 5);  // Startkapacitet satt till 5
+
+    // Skapa och initiera slänghögen
+    CardPile discardPile;
+    initializeCardPile(&discardPile, 5);  // Startkapacitet satt till 5
 
     // Dra initiala kort till spelarhanden
-    for (int i = 0; i < INITIAL_HAND_SIZE; i++) {
-        drawCardToHand(&hand);
+    for (int i = 0; i < 5; i++) {
+        addCardToPile(&hand, drawCard());
     }
 
     while (1) {
-        printf("\nYour hand:\n");
+        printf("\nYour hand: has %d Cards.\n",hand.size);
         printHand(&hand);
 
         // Visa kortet som är på spel
@@ -83,16 +87,22 @@ int main() {
             printCard(selectedCard);
             printf("\n");
 
+            // Lägg till det spelade kortet i slänghögen
+            addCardToPile(&discardPile, selectedCard);
+
             // Ta bort det spelade kortet från handen
             for (int i = choice - 1; i < hand.size - 1; i++) {
                 hand.cards[i] = hand.cards[i + 1];
             }
             hand.size--;
+
         } else {
             printf("Card is not playable.\n");
         }
     }
 
-    freeHand(&hand);
+    // Frigör minne
+    freeCardPile(&hand);
+    freeCardPile(&discardPile);
     return 0;
 }

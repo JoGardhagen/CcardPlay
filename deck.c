@@ -4,7 +4,7 @@
 #include "deck.h"
 
 Card deck[DECK_SIZE];
-int deckSize = DECK_SIZE; // Initialize with full deck size
+int deckSize = DECK_SIZE;
 
 const char *rankNames[] = {"2", "3", "4", "5", "6", "7", "9", "10", "Jack", "Queen", "King", "Ace", "8"};
 const char *suitNames[] = {"Hearts", "Diamonds", "Clubs", "Spades"};
@@ -18,7 +18,7 @@ void initializeDeck() {
             index++;
         }
     }
-    deckSize = DECK_SIZE; // Reset deck size
+    deckSize = DECK_SIZE;  // Återställ däckstorleken
 }
 
 void shuffleDeck() {
@@ -29,45 +29,24 @@ void shuffleDeck() {
         deck[i] = deck[j];
         deck[j] = temp;
     }
-    deckSize = DECK_SIZE; // Reset deck size after shuffling
+    deckSize = DECK_SIZE;  // Återställ däckstorleken efter blandning
 }
 
 Card drawCard() {
-    if (deckSize <= 0) {
+    if (deckSize > 0) {
+        return deck[--deckSize];
+    } else {
         printf("The deck is empty!\n");
         exit(1);
     }
-    return deck[--deckSize];
 }
 
-void initializeHand(Hand *hand, int initialCapacity) {
-    hand->cards = malloc(initialCapacity * sizeof(Card));
-    if (hand->cards == NULL) {
-        fprintf(stderr, "Memory allocation failed!\n");
-        exit(1);
-    }
-    hand->size = 0;
-    hand->capacity = initialCapacity;
-}
-
-void drawCardToHand(Hand *hand) {
-    if (deckSize == 0) {
-        printf("No cards left in the deck to draw.\n");
-        return;
-    }
-    if (hand->size >= hand->capacity) {
-        hand->capacity *= 2; // Double the capacity
-        hand->cards = realloc(hand->cards, hand->capacity * sizeof(Card));
-        if (hand->cards == NULL) {
-            fprintf(stderr, "Memory reallocation failed!\n");
-            exit(1);
-        }
-    }
-    hand->cards[hand->size++] = drawCard();
-}
-
-void freeHand(Hand *hand) {
-    free(hand->cards);
+Card drawStartCard() {
+    Card card;
+    do {
+        card = drawCard();
+    } while (card.rank == EIGHT || card.rank == ACE);
+    return card;
 }
 
 const char* rankToString(Rank rank) {
@@ -76,4 +55,30 @@ const char* rankToString(Rank rank) {
 
 const char* suitToString(Suit suit) {
     return suitNames[suit];
+}
+
+void initializeCardPile(CardPile *pile, int initialCapacity) {
+    pile->cards = malloc(initialCapacity * sizeof(Card));
+    if (pile->cards == NULL) {
+        fprintf(stderr, "Memory allocation failed!\n");
+        exit(1);
+    }
+    pile->size = 0;
+    pile->capacity = initialCapacity;
+}
+
+void addCardToPile(CardPile *pile, Card card) {
+    if (pile->size >= pile->capacity) {
+        pile->capacity *= 2; // Dubbla kapaciteten
+        pile->cards = realloc(pile->cards, pile->capacity * sizeof(Card));
+        if (pile->cards == NULL) {
+            fprintf(stderr, "Memory reallocation failed!\n");
+            exit(1);
+        }
+    }
+    pile->cards[pile->size++] = card;
+}
+
+void freeCardPile(CardPile *pile) {
+    free(pile->cards);
 }

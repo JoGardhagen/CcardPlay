@@ -31,28 +31,34 @@ typedef struct {
     Suit suit;
 } Card;
 
-#define DECK_SIZE 52
-#define INITIAL_HAND_SIZE 5
-
-extern Card deck[DECK_SIZE];
-extern int deckSize; // Current number of cards in the deck
-
-void initializeDeck();
-void shuffleDeck();
-Card drawCard();
-
-// Struktur och funktioner för att hantera spelarens hand
+// Struktur för att hantera spelarens hand
 typedef struct {
     Card *cards;
     int size;
     int capacity;
 } Hand;
 
-void initializeHand(Hand *hand, int initialCapacity);
-void drawCardToHand(Hand *hand);
-void freeHand(Hand *hand);
+#define DECK_SIZE 52
 
+extern Card deck[DECK_SIZE];
+extern int deckSize;
+
+void initializeDeck();
+void shuffleDeck();
+Card drawCard();
 const char* rankToString(Rank rank);
 const char* suitToString(Suit suit);
+Card drawStartCard();  // Ny funktion för att dra startkort
+
+// Struktur för att hantera en hand eller slänghög
+typedef struct {
+    Card *cards;
+    int size;
+    int capacity;
+} CardPile;
+
+void initializeCardPile(CardPile *pile, int initialCapacity);
+void addCardToPile(CardPile *pile, Card card);
+void freeCardPile(CardPile *pile);
 
 #endif
