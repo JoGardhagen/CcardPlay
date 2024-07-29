@@ -46,6 +46,7 @@ void shuffleDeck();
 Card drawCard();
 const char* rankToString(Rank rank);
 const char* suitToString(Suit suit);
+int isPlayable(Card card, Card topCard);
 void initializeCardPile(CardPile *pile, int initialCapacity);
 void addCardToPile(CardPile *pile, Card card);
 void printCardPile(CardPile *pile);
@@ -53,5 +54,6 @@ void freeCardPile(CardPile *pile);
 void drawMultipleCardsToHand(CardPile *hand, int count, CardPile *deck, CardPile *discardPile);
 void reshuffleDeck(CardPile *deck, CardPile *discardPile);
 void printCard(Card card); 
+void chooseNewSuit();
 
 #endif

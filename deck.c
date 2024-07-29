@@ -4,9 +4,14 @@
 #include "deck.h"
 
 CardPile deck;
+Suit currentSuit = NUM_SUITS; // Ingen färg vald initialt
 
 const char *rankNames[] = {"2", "3", "4", "5", "6", "7", "9", "10", "Jack", "Queen", "King", "Ace", "8"};
 const char *suitNames[] = {"Hearts", "Diamonds", "Clubs", "Spades"};
+
+int isPlayable(Card card, Card topCard) {
+    return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT || card.suit == currentSuit;
+}
 
 
 void initializeDeck() {
@@ -92,6 +97,19 @@ void drawMultipleCardsToHand(CardPile *hand, int count, CardPile *deck, CardPile
             reshuffleDeck(deck, discardPile);
         }
         addCardToPile(hand, drawCard());
+    }
+}
+// Initialisera den globala variabeln för aktuell färg
+
+void chooseNewSuit() {
+    int suitChoice;
+    printf("Choose a new suit (0: Hearts, 1: Diamonds, 2: Clubs, 3: Spades): ");
+    scanf("%d", &suitChoice);
+    if (suitChoice < 0 || suitChoice >= NUM_SUITS) {
+        printf("Invalid choice. Keeping the current suit.\n");
+    } else {
+        currentSuit = (Suit)suitChoice;
+        printf("New suit chosen: %s\n", suitToString(currentSuit));
     }
 }
 

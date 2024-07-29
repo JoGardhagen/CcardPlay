@@ -11,9 +11,11 @@ void printHand(CardPile *hand) {
     }
 }
 
-int isPlayable(Card card, Card topCard) {
+/*int isPlayable(Card card, Card topCard) {
     return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT;
-}
+}*/
+
+
 
 int main() {
     // Initiera och blanda kortleken
@@ -71,6 +73,10 @@ int main() {
             printf("You played: ");
             printCard(selectedCard);
             printf("\n");
+
+            if (selectedCard.rank == EIGHT) {
+                chooseNewSuit();
+            }
 
             // Lägg till det spelade kortet i slänghögen
             addCardToPile(&discardPile, selectedCard);
