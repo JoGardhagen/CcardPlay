@@ -3,7 +3,7 @@
 #include "deck.h"
 #include "card.h"
 
-// Funktioner för att hantera kort
+// Funktion för att skriva ut spelarens hand
 void printHand(CardPile *hand) {
     for (int i = 0; i < hand->size; i++) {
         printf("Card %d: ", i + 1);
@@ -12,53 +12,53 @@ void printHand(CardPile *hand) {
     }
 }
 
-/*int isPlayable(Card card, Card topCard) {
-    return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT;
-}*/
+// Kontrollera om det finns flera kort av samma rang i handen
+int hasMultipleOfSameRank(CardPile *hand, Rank rank) {
+    int count = 0;
+    for (int i = 0; i < hand->size; i++) {
+        if (hand->cards[i].rank == rank) {
+            count++;
+        }
+    }
+    return count > 1;
+}
 
-
-
+// Huvudprogrammet
 int main() {
     // Initiera och blanda kortleken
-    initializeDeck();
-    shuffleDeck();
+    CardPile deck = { .cards = {0}, .size = 0, .capacity = DECK_SIZE };
+    initializeDeck(&deck);
+    shuffleDeck(&deck);
 
-    // Dra ett kort från kortleken som det första kortet på bordet
-    Card topCard = drawCard();
-    printf("Initial top card: ");
-    printCard(topCard);
-    printf("\n");
+    // Initiera spelarens hand och kasseringshögen
+    CardPile hand = { .cards = {0}, .size = 0, .capacity = DECK_SIZE };
+    CardPile discardPile = { .cards = {0}, .size = 0, .capacity = DECK_SIZE };
 
-    // Skapa och initiera spelarhanden
-    CardPile hand;
-    initializeCardPile(&hand, 5);  // Startkapacitet satt till 5
-
-    // Skapa och initiera slänghögen
-    CardPile discardPile;
-    initializeCardPile(&discardPile, 5);  // Startkapacitet satt till 5
-
-    // Dra initiala kort till spelarhanden
+    // Dra initiala kort till spelarens hand
     for (int i = 0; i < 5; i++) {
-        addCardToPile(&hand, drawCard());
+        addCardToPile(&hand, drawCard(&deck));
     }
+
+    // Dra ett startkort till bordet från kortleken
+    addCardToPile(&discardPile, drawCard(&deck));
+    Card topCard = discardPile.cards[discardPile.size - 1];
 
     while (hand.size > 0) {
         printf("\nYour hand:\n");
         printHand(&hand);
 
-        // Visa kortet som är på spel
+        // Visa kortet som är på bordet
         printf("\nTop card: ");
         printCard(topCard);
         printf("\n");
 
-        printf("\nChoose a card to play (1-%d), or press 0 to draw 3 cards: ", hand.size);
+        printf("\nChoose a card to play (1-%d, or 0 to draw 3 cards): ", hand.size);
         int choice;
         scanf("%d", &choice);
 
         if (choice == 0) {
-            printf("Drawing 3 new cards...\n");
             drawMultipleCardsToHand(&hand, 3, &deck, &discardPile);
-            continue; // Gå tillbaka till början av loopen
+            continue;
         }
 
         if (choice < 1 || choice > hand.size) {
@@ -68,38 +68,36 @@ int main() {
 
         Card selectedCard = hand.cards[choice - 1];
 
-        if (isPlayable(selectedCard, topCard) || selectedCard.rank == EIGHT) {
+        if (isPlayable(selectedCard, topCard)) {
+             // Kolla om spelaren har flera kort av samma rang och vill spela dem
+            if (hasMultipleOfSameRank(&hand, selectedCard.rank)) {
+                playMultipleCardsOfSameRank(&hand, selectedCard.rank, &discardPile);
+            }
+            
             // Spela kortet
             topCard = selectedCard;
             printf("You played: ");
             printCard(selectedCard);
             printf("\n");
 
-            if (selectedCard.rank == EIGHT) {
-                chooseNewSuit();
-            }
 
-            // Lägg till det spelade kortet i slänghögen
+            // Lägg till kortet till kasseringshögen
             addCardToPile(&discardPile, selectedCard);
+            removeCardFromPile(&hand, choice - 1);
 
-            // Ta bort det spelade kortet från handen
-            for (int i = choice - 1; i < hand.size - 1; i++) {
-                hand.cards[i] = hand.cards[i + 1];
+
+
+
+            // Kolla om kortet var en 8a för att byta färg
+            if (selectedCard.rank == EIGHT) {
+                chooseNewSuit(&topCard);
             }
-            hand.size--;
-
         } else {
             printf("Card is not playable.\n");
         }
-
-        // Skriv ut slänghögen
-        printCardPile(&discardPile);
     }
 
-    printf("Congratulations! You've played all your cards.\n");
+    printf("Congratulations! You have played all your cards.\n");
 
-    // Frigör minne
-    freeCardPile(&hand);
-    freeCardPile(&discardPile);
     return 0;
 }

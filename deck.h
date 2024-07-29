@@ -6,24 +6,26 @@
 #define DECK_SIZE 52
 
 typedef struct {
-    Card *cards;
+    Card cards[DECK_SIZE];
     int size;
     int capacity;
 } CardPile;
 
-extern CardPile deck;  // Ändrat från extern Card deck[DECK_SIZE]
+extern CardPile deck;
+extern CardPile discardPile;
 
-void initializeDeck();
-void shuffleDeck();
-Card drawCard();
-
-int isPlayable(Card card, Card topCard);
-void initializeCardPile(CardPile *pile, int initialCapacity);
+void initializeDeck(CardPile *deck);
+void shuffleDeck(CardPile *deck);
+Card drawCard(CardPile *deck);
 void addCardToPile(CardPile *pile, Card card);
 void printCardPile(CardPile *pile);
-void freeCardPile(CardPile *pile);
 void drawMultipleCardsToHand(CardPile *hand, int count, CardPile *deck, CardPile *discardPile);
-void reshuffleDeck(CardPile *deck, CardPile *discardPile);
-void chooseNewSuit();
+void chooseNewSuit(Card *card);
+void removeCardFromPile(CardPile *pile, int index);
+int isPlayable(Card card, Card topCard);
 
-#endif
+// Ny funktion
+void playMultipleCardsOfSameRank(CardPile *hand, Rank rank, CardPile *discardPile);
+
+
+#endif // DECK_H

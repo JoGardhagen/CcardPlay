@@ -5,109 +5,134 @@
 #include "card.h"
 
 CardPile deck;
-Suit currentSuit = NUM_SUITS; // Ingen färg vald initialt
+CardPile discardPile;
 
-int isPlayable(Card card, Card topCard) {
-    return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT || card.suit == currentSuit;
-}
-
-
-void initializeDeck() {
-    deck.cards = malloc(DECK_SIZE * sizeof(Card));
-    deck.size = DECK_SIZE;
-    deck.capacity = DECK_SIZE;
-
-    int index = 0;
+void initializeDeck(CardPile *deck) {
+    deck->size = 0;
+    deck->capacity = DECK_SIZE;
     for (int suit = 0; suit < NUM_SUITS; suit++) {
         for (int rank = 0; rank < NUM_RANKS; rank++) {
-            deck.cards[index].rank = rank;
-            deck.cards[index].suit = suit;
-            index++;
+            if (rank != EIGHT) {
+                deck->cards[deck->size].rank = rank;
+                deck->cards[deck->size].suit = suit;
+                deck->size++;
+            }
         }
     }
-}
-
-void shuffleDeck() {
-    srand((unsigned int)time(NULL));
-    for (int i = 0; i < deck.size; i++) {
-        int j = rand() % deck.size;
-        Card temp = deck.cards[i];
-        deck.cards[i] = deck.cards[j];
-        deck.cards[j] = temp;
+    // Lägg till åttorna
+    for (int suit = 0; suit < NUM_SUITS; suit++) {
+        deck->cards[deck->size].rank = EIGHT;
+        deck->cards[deck->size].suit = suit;
+        deck->size++;
     }
 }
 
-Card drawCard() {
-    if (deck.size > 0) {
-        return deck.cards[--deck.size];
+void shuffleDeck(CardPile *deck) {
+    srand((unsigned int)time(NULL));
+    for (int i = 0; i < deck->size; i++) {
+        int j = rand() % deck->size;
+        Card temp = deck->cards[i];
+        deck->cards[i] = deck->cards[j];
+        deck->cards[j] = temp;
+    }
+}
+
+Card drawCard(CardPile *deck) {
+    if (deck->size > 0) {
+        return deck->cards[--deck->size];
     } else {
-        printf("The deck is empty!\n");
+        fprintf(stderr, "The deck is empty!\n");
         exit(1);
     }
 }
 
-void initializeCardPile(CardPile *pile, int initialCapacity) {
-    pile->cards = malloc(initialCapacity * sizeof(Card));
-    pile->size = 0;
-    pile->capacity = initialCapacity;
-}
-
 void addCardToPile(CardPile *pile, Card card) {
-    if (pile->size >= pile->capacity) {
-        pile->capacity *= 2;
-        pile->cards = realloc(pile->cards, pile->capacity * sizeof(Card));
-        if (pile->cards == NULL) {
-            fprintf(stderr, "Memory reallocation failed!\n");
-            exit(1);
-        }
+    if (pile->size < pile->capacity) {
+        pile->cards[pile->size++] = card;
+    } else {
+        fprintf(stderr, "The pile is full!\n");
+        exit(1);
     }
-    pile->cards[pile->size++] = card;
 }
 
+void removeCardFromPile(CardPile *pile, int index) {
+    if (index < 0 || index >= pile->size) {
+        fprintf(stderr, "Invalid index!\n");
+        return;
+    }
+    for (int i = index; i < pile->size - 1; i++) {
+        pile->cards[i] = pile->cards[i + 1];
+    }
+    pile->size--;
+}
 
 void printCardPile(CardPile *pile) {
-    printf("Discard Pile:\n");
     for (int i = 0; i < pile->size; i++) {
-        printf("Card %d: ", i + 1);
         printCard(pile->cards[i]);
         printf("\n");
     }
 }
 
-void freeCardPile(CardPile *pile) {
-    free(pile->cards);
-}
-
-void reshuffleDeck(CardPile *deck, CardPile *discardPile) {
-    for (int i = 0; i < discardPile->size; i++) {
-        addCardToPile(deck, discardPile->cards[i]);
-    }
-    discardPile->size = 0;
-    shuffleDeck();
-}
-
 void drawMultipleCardsToHand(CardPile *hand, int count, CardPile *deck, CardPile *discardPile) {
     for (int i = 0; i < count; i++) {
-        if (deck->size == 0) {
-            printf("Deck is empty, reshuffling discard pile into deck.\n");
-            reshuffleDeck(deck, discardPile);
+        if (deck->size > 0) {
+            addCardToPile(hand, drawCard(deck));
+        } else {
+            printf("No more cards left in the deck to draw. Shuffling discard pile into deck.\n");
+            *deck = *discardPile; // Flytta kort från kasseringshögen till kortleken
+            shuffleDeck(deck);
+            discardPile->size = 0; // Töm kasseringshögen
+            if (deck->size > 0) {
+                addCardToPile(hand, drawCard(deck));
+            } else {
+                printf("No cards left to draw.\n");
+                break;
+            }
         }
-        addCardToPile(hand, drawCard());
     }
 }
-// Initialisera den globala variabeln för aktuell färg
 
-void chooseNewSuit() {
+void chooseNewSuit(Card *card) {
     int suitChoice;
-    
-    printf("Choose a new suit (0: ♥, 1: ♦, 2: ♣, 3: ♠): ");
+    printf("Choose a new suit (1-Hearts, 2-Diamonds, 3-Clubs, 4-Spades): ");
     scanf("%d", &suitChoice);
-    if (suitChoice < 0 || suitChoice >= NUM_SUITS) {
-        printf("Invalid choice. Keeping the current suit.\n");
+    if (suitChoice >= 1 && suitChoice <= 4) {
+        card->suit = suitChoice - 1;
     } else {
-        currentSuit = (Suit)suitChoice;
-        printf("New suit chosen: %s\n", suitToString(currentSuit));
+        printf("Invalid choice, keeping the same suit.\n");
     }
 }
+int isPlayable(Card card, Card topCard) {
+    return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT;
+}
 
+void playMultipleCardsOfSameRank(CardPile *hand, Rank rank, CardPile *discardPile) {
+    printf("You have multiple cards of the same rank. Do you want to play them? (y/n): ");
+    char playMore;
+    scanf(" %c", &playMore);
 
+    if (playMore == 'y' || playMore == 'Y') {
+        int i = 0;
+        while (i < hand->size) {
+            if (hand->cards[i].rank == rank) {
+                printf("Play card %d: ", i + 1);
+                printCard(hand->cards[i]);
+                printf("? (y/n): ");
+                char play;
+                scanf(" %c", &play);
+                if (play == 'y' || play == 'Y') {
+                    Card cardToPlay = hand->cards[i];
+                    printf("You played: ");
+                    printCard(cardToPlay);
+                    printf("\n");
+                    addCardToPile(discardPile, cardToPlay);
+                    removeCardFromPile(hand, i);
+                } else {
+                    i++;
+                }
+            } else {
+                i++;
+            }
+        }
+    }
+}
