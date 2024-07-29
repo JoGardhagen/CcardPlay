@@ -1,8 +1,6 @@
 #ifndef DECK_H
 #define DECK_H
 
-#include <stdlib.h>
-
 typedef enum {
     HEARTS,
     DIAMONDS,
@@ -33,36 +31,27 @@ typedef struct {
     Suit suit;
 } Card;
 
-// Struktur för att hantera spelarens hand
-typedef struct {
-    Card *cards;
-    int size;
-    int capacity;
-} Hand;
-
 #define DECK_SIZE 52
 
-extern Card deck[DECK_SIZE];
-extern int deckSize;
-
-void initializeDeck();
-void shuffleDeck();
-Card drawCard();
-const char* rankToString(Rank rank);
-const char* suitToString(Suit suit);
-Card drawStartCard();  // Ny funktion för att dra startkort
-
-// Struktur för att hantera en hand eller slänghög
 typedef struct {
     Card *cards;
     int size;
     int capacity;
 } CardPile;
 
+extern CardPile deck;  // Ändrat från extern Card deck[DECK_SIZE]
+
+void initializeDeck();
+void shuffleDeck();
+Card drawCard();
+const char* rankToString(Rank rank);
+const char* suitToString(Suit suit);
 void initializeCardPile(CardPile *pile, int initialCapacity);
 void addCardToPile(CardPile *pile, Card card);
-void freeCardPile(CardPile *pile);
 void printCardPile(CardPile *pile);
+void freeCardPile(CardPile *pile);
+void drawMultipleCardsToHand(CardPile *hand, int count, CardPile *deck, CardPile *discardPile);
+void reshuffleDeck(CardPile *deck, CardPile *discardPile);
 void printCard(Card card); 
 
 #endif

@@ -3,73 +3,55 @@
 #include <time.h>
 #include "deck.h"
 
-Card deck[DECK_SIZE];
-int deckSize = DECK_SIZE;
+CardPile deck;
 
 const char *rankNames[] = {"2", "3", "4", "5", "6", "7", "9", "10", "Jack", "Queen", "King", "Ace", "8"};
 const char *suitNames[] = {"Hearts", "Diamonds", "Clubs", "Spades"};
 
+
 void initializeDeck() {
+    deck.cards = malloc(DECK_SIZE * sizeof(Card));
+    deck.size = DECK_SIZE;
+    deck.capacity = DECK_SIZE;
+
     int index = 0;
     for (int suit = 0; suit < NUM_SUITS; suit++) {
         for (int rank = 0; rank < NUM_RANKS; rank++) {
-            deck[index].rank = rank;
-            deck[index].suit = suit;
+            deck.cards[index].rank = rank;
+            deck.cards[index].suit = suit;
             index++;
         }
     }
-    deckSize = DECK_SIZE;  // Återställ däckstorleken
 }
 
 void shuffleDeck() {
-    srand(time(NULL));
-    for (int i = 0; i < DECK_SIZE; i++) {
-        int j = rand() % DECK_SIZE;
-        Card temp = deck[i];
-        deck[i] = deck[j];
-        deck[j] = temp;
+    srand((unsigned int)time(NULL));
+    for (int i = 0; i < deck.size; i++) {
+        int j = rand() % deck.size;
+        Card temp = deck.cards[i];
+        deck.cards[i] = deck.cards[j];
+        deck.cards[j] = temp;
     }
-    deckSize = DECK_SIZE;  // Återställ däckstorleken efter blandning
 }
 
 Card drawCard() {
-    if (deckSize > 0) {
-        return deck[--deckSize];
+    if (deck.size > 0) {
+        return deck.cards[--deck.size];
     } else {
         printf("The deck is empty!\n");
         exit(1);
     }
 }
 
-Card drawStartCard() {
-    Card card;
-    do {
-        card = drawCard();
-    } while (card.rank == EIGHT || card.rank == ACE);
-    return card;
-}
-
-const char* rankToString(Rank rank) {
-    return rankNames[rank];
-}
-
-const char* suitToString(Suit suit) {
-    return suitNames[suit];
-}
-
 void initializeCardPile(CardPile *pile, int initialCapacity) {
     pile->cards = malloc(initialCapacity * sizeof(Card));
-    if (pile->cards == NULL) {
-        fprintf(stderr, "Memory allocation failed!\n");
-        exit(1);
-    }
     pile->size = 0;
     pile->capacity = initialCapacity;
 }
 
 void addCardToPile(CardPile *pile, Card card) {
     if (pile->size >= pile->capacity) {
-        pile->capacity *= 2; // Dubbla kapaciteten
+        pile->capacity *= 2;
         pile->cards = realloc(pile->cards, pile->capacity * sizeof(Card));
         if (pile->cards == NULL) {
             fprintf(stderr, "Memory reallocation failed!\n");
@@ -78,18 +60,45 @@ void addCardToPile(CardPile *pile, Card card) {
     }
     pile->cards[pile->size++] = card;
 }
-
-void freeCardPile(CardPile *pile) {
-    free(pile->cards);
+void printCard(Card card) {
+    printf("%s of %s", rankToString(card.rank), suitToString(card.suit));
 }
 
 void printCardPile(CardPile *pile) {
     printf("Discard Pile:\n");
     for (int i = 0; i < pile->size; i++) {
+        printf("Card %d: ", i + 1);
         printCard(pile->cards[i]);
         printf("\n");
     }
 }
-void printCard(Card card) {
-    printf("%s of %s", rankToString(card.rank), suitToString(card.suit));
+
+void freeCardPile(CardPile *pile) {
+    free(pile->cards);
+}
+
+void reshuffleDeck(CardPile *deck, CardPile *discardPile) {
+    for (int i = 0; i < discardPile->size; i++) {
+        addCardToPile(deck, discardPile->cards[i]);
+    }
+    discardPile->size = 0;
+    shuffleDeck();
+}
+
+void drawMultipleCardsToHand(CardPile *hand, int count, CardPile *deck, CardPile *discardPile) {
+    for (int i = 0; i < count; i++) {
+        if (deck->size == 0) {
+            printf("Deck is empty, reshuffling discard pile into deck.\n");
+            reshuffleDeck(deck, discardPile);
+        }
+        addCardToPile(hand, drawCard());
+    }
+}
+
+const char* rankToString(Rank rank) {
+    return rankNames[rank];
+}
+
+const char* suitToString(Suit suit) {
+    return suitNames[suit];
 }

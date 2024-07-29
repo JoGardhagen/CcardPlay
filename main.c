@@ -3,10 +3,6 @@
 #include "deck.h"
 
 // Funktioner för att hantera kort
-/*void printCard(Card card) {
-    printf("%s of %s", rankToString(card.rank), suitToString(card.suit));
-}*/
-
 void printHand(CardPile *hand) {
     for (int i = 0; i < hand->size; i++) {
         printf("Card %d: ", i + 1);
@@ -17,17 +13,6 @@ void printHand(CardPile *hand) {
 
 int isPlayable(Card card, Card topCard) {
     return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT;
-}
-
-void drawMultipleCardsToHand(CardPile *hand, int count) {
-    for (int i = 0; i < count; i++) {
-        if (deckSize > 0) {
-            addCardToPile(hand, drawCard());
-        } else {
-            printf("No more cards left in the deck to draw.\n");
-            break;
-        }
-    }
 }
 
 int main() {
@@ -54,8 +39,8 @@ int main() {
         addCardToPile(&hand, drawCard());
     }
 
-    while (1) {
-        printf("\nYour hand: has %d Cards.\n",hand.size);
+    while (hand.size > 0) {
+        printf("\nYour hand:\n");
         printHand(&hand);
 
         // Visa kortet som är på spel
@@ -69,7 +54,7 @@ int main() {
 
         if (choice == 0) {
             printf("Drawing 3 new cards...\n");
-            drawMultipleCardsToHand(&hand, 3);
+            drawMultipleCardsToHand(&hand, 3, &deck, &discardPile);
             continue; // Gå tillbaka till början av loopen
         }
 
@@ -103,6 +88,8 @@ int main() {
         // Skriv ut slänghögen
         printCardPile(&discardPile);
     }
+
+    printf("Congratulations! You've played all your cards.\n");
 
     // Frigör minne
     freeCardPile(&hand);
