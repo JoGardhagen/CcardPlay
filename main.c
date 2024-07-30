@@ -50,7 +50,7 @@ int main() {
         // Visa kortet som är på bordet
         printf("\nTop card: ");
         printCard(topCard);
-        printCardIllustration(topCard);
+        printCardIllustrationASCII(topCard);
         printf("\n");
 
         printf("\nChoose a card to play (1-%d, or 0 to draw 3 cards): ", hand.size);
