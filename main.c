@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "deck.h"
 #include "card.h"
+#include "gameplay.h"
 
 // Funktion för att skriva ut spelarens hand
 void printHand(CardPile *hand) {
@@ -38,11 +39,9 @@ int main() {
         printf("\nYour hand:\n");
         printHand(&hand);
 
-        // Visa kortet som är på bordet
         printf("\nTop card: ");
         printCard(topCard);
         printCardIllustrationASCII(topCard);
-        printf("\n");
 
         printf("\nChoose a card to play (1-%d, or 0 to draw 3 cards): ", hand.size);
         int choice;
@@ -50,51 +49,25 @@ int main() {
 
         if (choice == 0) {
             drawMultipleCardsToHand(&hand, 3, &deck, &discardPile);
-            continue;
+        } else if (choice > 0 && choice <= hand.size) {
+            Card selectedCard = hand.cards[choice - 1];
+
+            if (isPlayable(selectedCard, topCard)) {
+                if (hasMultipleOfSameRank(&hand, selectedCard.rank)) {
+                    playMultipleCardsOfSameRank(&hand, selectedCard.rank, &discardPile, selectedCard, choice, &topCard);
+                } else {
+                    playCard(&hand, choice, &discardPile, &topCard);
+                }
+            } else {
+                printf("Invalid card choice.\n");
+            }
+        } else {
+            printf("Invalid choice.\n");
         }
-
-        if (choice < 1 || choice > hand.size) {
-            printf("Invalid choice. Try again.\n");
-            continue;
-        }
-
-        Card selectedCard = hand.cards[choice - 1];
-
         
-            
-            // Spela kortet
-            topCard = selectedCard;
-            printf("You played: ");
-            printCard(selectedCard);
-            printf("\n");
-
-
-            // Lägg till kortet till kasseringshögen
-            addCardToPile(&discardPile, selectedCard);
-            removeCardFromPile(&hand, choice - 1);
-
-        if (isPlayable(selectedCard, topCard)) {
-            // Kolla om spelaren har flera kort av samma rang och vill spela dem
-            if(hasMultipleOfSameRank(&hand, selectedCard.rank)){
-                playMultipleCardsOfSameRank(&hand, selectedCard.rank, &discardPile, selectedCard, choice);
-                // Kolla om kortet var en 8a för att byta färg
-
-            }/*else {             
-            // Uppdatera topCard till det senast spelade kortet
-            topCard = discardPile.cards[discardPile.size - 1];
-            }*/
-
-
-
-
-                 if (selectedCard.rank == EIGHT) {
-                    chooseNewSuit(&topCard);
-                }
-                }
-         else {
-            printf("Card is not playable.\n");
-        }
     }
+
+    
 
     printf("Congratulations! You have played all your cards.\n");
 

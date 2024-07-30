@@ -24,7 +24,7 @@ void printCardIllustrationASCII(Card card){
     char displayRank[3]; // Max två tecken plus null-terminator
 
     // Om ranken är klätt kort, visa endast första bokstaven
-    if (strcmp(rank, "Jack") == 0 || strcmp(rank, "Queen") == 0 || strcmp(rank, "King") == 0) {
+    if (strcmp(rank, "Jack") == 0 || strcmp(rank, "Queen") == 0 || strcmp(rank, "King") == 0 || strcmp(rank,"Ace")==0) {
         displayRank[0] = rank[0];
         displayRank[1] = '\0';
     } else {
