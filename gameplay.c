@@ -1,5 +1,6 @@
 #include "gameplay.h"
 #include <stdio.h>
+#include <string.h>
 
 // Välj ny färg för ett kort
 void chooseNewSuit(Card *card) {
@@ -93,4 +94,57 @@ int findCardIndex(CardPile *hand, Card card) {
         }
     }
     return -1; // Kortet finns inte i handen
+}
+void getDisplayRank(Rank rank, char *displayRank) {
+    const char *rankStr = rankToString(rank);
+    if (strcmp(rankStr, "Jack") == 0 || strcmp(rankStr, "Queen") == 0 || strcmp(rankStr, "King") == 0 || strcmp(rankStr, "Ace") == 0) {
+        displayRank[0] = rankStr[0];
+        displayRank[1] = '\0';
+    } else {
+        strcpy(displayRank, rankStr);
+    }
+}
+
+void printHandIllustrationASCII(CardPile *hand) {
+    printf("Hand:\n");
+    
+    // Print the top line
+    for (int i = 0; i < hand->size; i++) {
+        //printf("Card:%d",i+1);
+        printf(" _____ ");
+    }
+    printf("\n");
+
+    // Print the rank and left suit
+    for (int i = 0; i < hand->size; i++) {
+        char displayRank[3];
+        getDisplayRank(hand->cards[i].rank, displayRank);
+        printf("|%-2s   |", displayRank);
+    }
+    printf("\n");
+
+    // Print the suit in the middle
+    for (int i = 0; i < hand->size; i++) {
+        const char *suit = suitToString(hand->cards[i].suit);
+        printf("|  %s  |", suit);
+    }
+    printf("\n");
+
+    // Print the rank and right suit
+    for (int i = 0; i < hand->size; i++) {
+        char displayRank[3];
+        getDisplayRank(hand->cards[i].rank, displayRank);
+        printf("|___%-2s|", displayRank);
+    }
+    printf("\n");
+    // Skriv ut kortens indexpositioner
+    
+    for (int i = 0; i < hand->size; i++) {
+        if (i < 9) {
+            printf("   %d   ", i + 1); // För att se till att ensiffriga nummer har en extra plats
+        } else {
+            printf("  %d   ", i + 1); // Tvåsiffriga nummer får bara en extra plats
+        }
+    }
+    printf("\n");
 }

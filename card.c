@@ -3,6 +3,7 @@
 #include "card.h"
 
 
+
 const char *rankNames[] = {"2", "3", "4", "5", "6", "7", "9", "10", "Jack", "Queen", "King", "Ace", "8"};
 const char *suitNames[] = {"♥", "♦", "♣", "♠"};
 
