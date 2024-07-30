@@ -4,6 +4,7 @@
 #include "card.h"
 #include "gameplay.h"
 #include <string.h>
+#include "ai.h"
 
 // Funktion för att skriva ut spelarens hand
 void printHand(CardPile *hand) {
@@ -28,17 +29,22 @@ int main() {
     CardPile hand = { .cards = {0}, .size = 0, .capacity = DECK_SIZE };
     CardPile discardPile = { .cards = {0}, .size = 0, .capacity = DECK_SIZE };
 
+    CardPile aiHand = { .cards = {0}, .size = 0, .capacity = DECK_SIZE };
+
     // Dra initiala kort till spelarens hand
     for (int i = 0; i < 5; i++) {
         addCardToPile(&hand, drawCard(&deck));
+        addCardToPile(&aiHand,drawCard(&deck));
     }
 
     // Dra ett startkort till bordet från kortleken
     addCardToPile(&discardPile, drawCard(&deck));
     Card topCard = discardPile.cards[discardPile.size - 1];
 
-    while (hand.size > 0) {
-        printf("\nYour hand:\n");
+    int turn = 0;
+    while (hand.size > 0|| aiHand.size <0) {
+        if(turn==0){
+            printf("\nYour hand:\n");
         //printHand(&hand);
 
         printHandIllustrationASCII(&hand);
@@ -68,6 +74,10 @@ int main() {
         } else {
             printf("Invalid choice.\n");
         }
+        }else{
+            aiPlayTurn(&aiHand,&discardPile,&topCard);
+        }
+        turn = 1-turn;
         
     }
 
