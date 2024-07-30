@@ -25,7 +25,9 @@ void removeCardFromPile(CardPile *pile, int index);
 int isPlayable(Card card, Card topCard);
 
 // Ny funktion
-void playMultipleCardsOfSameRank(CardPile *hand, Rank rank, CardPile *discardPile);
+int hasMultipleOfSameRank(CardPile *hand, Rank rank);
+void playMultipleCardsOfSameRank(CardPile *hand, Rank rank, CardPile *discardPile, Card selectedCard, int initialChoice);
+//void playMultipleCardsOfSameRank(CardPile *hand, Rank rank, CardPile *discardPile);
 
 
 #endif // DECK_H

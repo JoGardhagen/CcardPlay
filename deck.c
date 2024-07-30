@@ -72,6 +72,16 @@ void printCardPile(CardPile *pile) {
         printf("\n");
     }
 }
+// Kontrollera om det finns flera kort av samma rang i handen
+int hasMultipleOfSameRank(CardPile *hand, Rank rank) {
+    int count = 0;
+    for (int i = 0; i < hand->size; i++) {
+        if (hand->cards[i].rank == rank) {
+            count++;
+        }
+    }
+    return count > 1;
+}
 
 void drawMultipleCardsToHand(CardPile *hand, int count, CardPile *deck, CardPile *discardPile) {
     for (int i = 0; i < count; i++) {
@@ -106,7 +116,50 @@ int isPlayable(Card card, Card topCard) {
     return card.rank == topCard.rank || card.suit == topCard.suit || card.rank == EIGHT;
 }
 
-void playMultipleCardsOfSameRank(CardPile *hand, Rank rank, CardPile *discardPile) {
+void playMultipleCardsOfSameRank(CardPile *hand, Rank rank, CardPile *discardPile, Card selectedCard, int initialChoice) {
+    // Lägg första valda kortet i kasseringshögen
+    addCardToPile(discardPile, selectedCard);
+    removeCardFromPile(hand, initialChoice - 1);
+
+    printf("You played: ");
+    printCard(selectedCard);
+    printf("\n");
+
+    // Kontrollera om det finns fler kort av samma rang att spela
+    if (hasMultipleOfSameRank(hand, rank)) {
+        printf("You have multiple cards of the same rank. Do you want to play them? (y/n): ");
+        char playMore;
+        scanf(" %c", &playMore);
+
+        if (playMore == 'y' || playMore == 'Y') {
+            int i = 0;
+            while (i < hand->size) {
+                if (hand->cards[i].rank == rank) {
+                    printf("Play card %d: ", i + 1);
+                    printCard(hand->cards[i]);
+                    printf("? (y/n): ");
+                    char play;
+                    scanf(" %c", &play);
+                    if (play == 'y' || play == 'Y') {
+                        Card cardToPlay = hand->cards[i];
+                        printf("You played: ");
+                        printCard(cardToPlay);
+                        printf("\n");
+                        addCardToPile(discardPile, cardToPlay);
+                        removeCardFromPile(hand, i);
+                    } else {
+                        i++;
+                    }
+                } else {
+                    i++;
+                }
+            }
+        }
+    }
+}
+
+
+/*void playMultipleCardsOfSameRank(CardPile *hand, Rank rank, CardPile *discardPile) {
     printf("You have multiple cards of the same rank. Do you want to play them? (y/n): ");
     char playMore;
     scanf(" %c", &playMore);
@@ -136,3 +189,4 @@ void playMultipleCardsOfSameRank(CardPile *hand, Rank rank, CardPile *discardPil
         }
     }
 }
+*/

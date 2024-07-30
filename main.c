@@ -12,16 +12,7 @@ void printHand(CardPile *hand) {
     }
 }
 
-// Kontrollera om det finns flera kort av samma rang i handen
-int hasMultipleOfSameRank(CardPile *hand, Rank rank) {
-    int count = 0;
-    for (int i = 0; i < hand->size; i++) {
-        if (hand->cards[i].rank == rank) {
-            count++;
-        }
-    }
-    return count > 1;
-}
+
 
 // Huvudprogrammet
 int main() {
@@ -69,11 +60,7 @@ int main() {
 
         Card selectedCard = hand.cards[choice - 1];
 
-        if (isPlayable(selectedCard, topCard)) {
-             // Kolla om spelaren har flera kort av samma rang och vill spela dem
-            if (hasMultipleOfSameRank(&hand, selectedCard.rank)) {
-                playMultipleCardsOfSameRank(&hand, selectedCard.rank, &discardPile);
-            }
+        
             
             // Spela kortet
             topCard = selectedCard;
@@ -86,14 +73,25 @@ int main() {
             addCardToPile(&discardPile, selectedCard);
             removeCardFromPile(&hand, choice - 1);
 
+        if (isPlayable(selectedCard, topCard)) {
+            // Kolla om spelaren har flera kort av samma rang och vill spela dem
+            if(hasMultipleOfSameRank(&hand, selectedCard.rank)){
+                playMultipleCardsOfSameRank(&hand, selectedCard.rank, &discardPile, selectedCard, choice);
+                // Kolla om kortet var en 8a för att byta färg
+
+            }/*else {             
+            // Uppdatera topCard till det senast spelade kortet
+            topCard = discardPile.cards[discardPile.size - 1];
+            }*/
 
 
 
-            // Kolla om kortet var en 8a för att byta färg
-            if (selectedCard.rank == EIGHT) {
-                chooseNewSuit(&topCard);
-            }
-        } else {
+
+                 if (selectedCard.rank == EIGHT) {
+                    chooseNewSuit(&topCard);
+                }
+                }
+         else {
             printf("Card is not playable.\n");
         }
     }
